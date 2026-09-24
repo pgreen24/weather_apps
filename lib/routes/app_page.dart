@@ -7,6 +7,7 @@ import '../module/splash/splash_binding.dart';
 import '../module/splash/splash_view.dart';
 import 'app_routes.dart';
 
+
 class AppPage {
   static final initial = AppRoutes.splash;
   static  final routes =[
