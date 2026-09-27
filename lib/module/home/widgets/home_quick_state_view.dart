@@ -53,7 +53,7 @@ class HomeQuickStateView extends GetView<HomeLogic> {
             _buildStatColumn(
                 context: context,
                 title: 'TIME',
-                value: '4'
+                value: weather.formattedLocalTime
             ),
 
             _buildStatColumn(

@@ -5,6 +5,7 @@ import '../../../utils/app_size.dart';
 import '../../../utils/asset_constant.dart';
 import '../../../utils/style/style_padding.dart';
 import '../../shimmer/shimmer_view.dart';
+import '../widgets/home_district.dart';
 import '../widgets/home_location_and_temp_view.dart';
 import '../widgets/home_main_image_view.dart';
 import '../widgets/home_quick_state_view.dart';
@@ -25,14 +26,15 @@ class HomeMobile extends GetView<HomeLogic> {
             child: Column(
               spacing: WSizes.defaultSpacing,
               children: <Widget>[
+                const HomeDistrict(),
+                const SizedBox(height: 10),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
                       spacing: WSizes.defaultSpacing,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const HomeMainImageView(imagePath: AssetConstants
-                            .partyCloudy, imageHeight: 200),
+                        HomeMainImageView(imagePath:controller.homeIcon.value, imageHeight: 200),
                         const HomeLocationAndTempView(),
                         const HomeQuickStateView(),
                         const HomeSunriseAndSunsetView(),

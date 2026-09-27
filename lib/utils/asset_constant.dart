@@ -7,6 +7,6 @@ sealed class AssetConstants {
   static const String locationIcon = 'assets/image/location_icon.png';
   static const String cloudy = 'assets/image/img.png';
   static const String sunny = 'assets/image/img_2.png';
-  static const String Rain = 'assets/image/img_1.png';
+  static const String rain = 'assets/image/img_1.png';
 
 }

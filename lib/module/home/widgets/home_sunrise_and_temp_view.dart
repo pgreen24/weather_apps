@@ -39,8 +39,8 @@ class HomeSunriseAndSunsetView extends GetView<HomeLogic> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                //_buildSunTime('Sunrise', weather?.formattedSunrise ?? '06:25 AM'),
-              //  _buildSunTime('Sunset', weather?.formattedSunset ?? '08:30 PM', isRight: true)
+                _buildSunTime('Sunrise', weather?.formattedSunrise ?? '06:25 AM'),
+                _buildSunTime('Sunset', weather?.formattedSunset ?? '08:30 PM', isRight: true)
               ],
             ),
             const SizedBox(height: 12),
@@ -56,7 +56,7 @@ class HomeSunriseAndSunsetView extends GetView<HomeLogic> {
                 children: [
                   const TextSpan(text: 'Length of day: '),
                   TextSpan(
-                   // text: weather?.lengthOfDay ?? '13H 12M',
+                    text: weather?.lengthOfDay ?? '13H 12M',
                     style: TextStyle(fontWeight: FontWeight.bold, color: primaryTextColor),
                   ),
                 ],
@@ -69,7 +69,7 @@ class HomeSunriseAndSunsetView extends GetView<HomeLogic> {
                 children: [
                   const TextSpan(text: 'Remaining daylight: '),
                   TextSpan(
-                   // text: weather?.remainingDaylight ?? '9H 22M',
+                    text: weather?.remainingDaylight ?? '9H 22M',
                     style: TextStyle(fontWeight: FontWeight.bold, color: primaryTextColor),
                   ),
                 ],
