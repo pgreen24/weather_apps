@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:weather_apps/module/home/home_logic.dart';
 import '../../../utils/app_size.dart';
-import '../../../utils/asset_constant.dart';
 import '../../../utils/style/style_padding.dart';
 import '../../shimmer/shimmer_view.dart';
 import '../widgets/home_district.dart';

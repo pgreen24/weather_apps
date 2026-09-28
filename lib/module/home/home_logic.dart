@@ -8,110 +8,102 @@ import 'data_model/weather_data_model.dart';
 class HomeLogic extends GetxController {
   RxBool isLoading = true.obs;
   RxBool isSearchLoading = false.obs;
-  var weatherList = <WeatherDataModel>[].obs,
-      searchHistory = <String>[].obs;
-  var searchedCity = ''.obs,
-      temperature = ''.obs,
-      weatherIconPath = ''.obs;
-  var homeCity = ''.obs,
-      homeTemp = ''.obs,
-      homeIcon = ''.obs;
+  RxList weatherList = <WeatherDataModel>[].obs,
+        District = <String>[].obs;
+  RxString homeCity = ''.obs,
+          homeTemp = ''.obs,
+          homeIcon = ''.obs;
   RxBool isDarkMode = false.obs;
-  final TextEditingController searchController = TextEditingController();
+  final TextEditingController textController = TextEditingController();
   List<Map<String, dynamic>> allApiDistricts = [];
-  var addedCitiesList = <Map<String, String>>[].obs;
-  RxString cityName = 'dhaka'.obs;
+
+  RxString cityName = 'comilla'.obs;
 
   @override
   void onInit() {
     super.onInit();
     isDarkMode.value = Get.isDarkMode;
-    Future.delayed(const Duration(seconds: 3), () {
-      isLoading.value = false;
-      fetchWeatherData();
-      fetchAllDistrictsFromApi();
-    });
+      //isLoading.value = false;
+      WeatherData();
+      AllDistrictsFromApi();
   }
-  Future<void> fetchWeatherData() async {
-    isLoading.value = true;
-    final dio.Response? response = await ApiServices().apiGetCall(cityName: cityName.value);
+  Future<void> WeatherData() async {
+    // isLoading.value = true;
+    final dio.Response? response = await ApiServices().weatherData(cityName: cityName.value);
 
     if (response != null && response.statusCode == 200 && response.data != null) {
-      weatherList.assignAll(WeatherDataModel.fromJsonList(response.data));
-      if (weatherList.isNotEmpty) {
         homeTemp.value = "${response.data['main']['temp'].round()}°";
-        homeCity.value = response.data['name'] ?? 'Dhaka';
+        homeCity.value = response.data['name'] ?? 'comilla';
         String iconCode = '';
         if (response.data['weather'] != null && (response.data['weather'] as List).isNotEmpty) {
           iconCode = response.data['weather'][0]['icon'] ?? '';
         }
         homeIcon.value = getWeatherIcon(iconCode);
+        weatherList.assignAll(WeatherDataModel.fromJsonList([response.data]));
       }
-    }
+
     isLoading.value = false;
   }
   String getWeatherIcon(String iconCode) {
+    print("object : ${AssetConstants.sunny}");
     if (['01d', '01n'].contains(iconCode)) return AssetConstants.sunny;
     if (['02d', '02n', '03d', '03n'].contains(iconCode)) return AssetConstants.partyCloudy;
     if (['04d', '04n'].contains(iconCode)) return AssetConstants.cloudy;
     if (['09d', '09n', '10d', '10n', '11d', '11n'].contains(iconCode)) return AssetConstants.rain;return AssetConstants.sunny;
   }
 
-  Future<void> fetchAllDistrictsFromApi() async {
+  Future<void> AllDistrictsFromApi([String? name]) async {
     try {
 
-      final res = await ApiServices().getCity();
+      if (allApiDistricts.isEmpty) {
+        final res = await ApiServices().getCity();
 
-      if (res?.statusCode == 200) {
-        final List<dynamic> dataList = res?.data?['data'] ?? [];
+        if (res != null && res.statusCode == 200) {
+          final List<dynamic> dataList = res.data?['data'] ?? [];
+          allApiDistricts = dataList.map((item) => {
+            'id': item['id'] ?? 0,
+            'name': item['name'] ?? ''
+          }).toList();
 
-        allApiDistricts = dataList.map((item) =>
-        {
-          'id': item['id'] ?? 0,
-          'text': item['text'] ?? item['name'] ?? ''
-        }).toList();
-
-        if (allApiDistricts.isNotEmpty) {
-          searchHistory.assignAll(
-            allApiDistricts.take(10).map((item) =>
-                item['text'].toString().split('-').first.trim()),
-          );
+          if (allApiDistricts.isNotEmpty) {
+            District .assignAll(
+              allApiDistricts.map<String>((item) =>
+                  item['name'].toString().split('-').first.trim()),
+            );
+          }
         }
-        debugPrint("Successfully loaded ${allApiDistricts.length} districts.");
+      }
+
+      String targetCity = name ?? (District .isNotEmpty ? District .first : 'comilla');
+
+
+      if (targetCity.toLowerCase() == 'chattogram') {
+        targetCity = 'Chittagong';
+      } else if (targetCity.toLowerCase() == 'coxsbazar') {
+        targetCity = "Cox's bazar";
+      }
+
+      isSearchLoading.value = true;
+
+
+      final dio.Response? response = await ApiServices().weatherData(cityName: targetCity);
+
+      if (response != null && response.statusCode == 200) {
+        homeCity.value = response.data['name'] ?? targetCity;
+        homeTemp.value = "${response.data['main']['temp'].round()}°";
+
+        if (response.data['weather'] != null && (response.data['weather'] as List).isNotEmpty) {
+          String iconCode = response.data['weather'][0]['icon'] ?? '';
+          homeIcon.value = getWeatherIcon(iconCode);
+        }
+        textController.clear();
       }
     } catch (e) {
-      debugPrint("Dynamic Dropdown API Error: $e");
+
+    } finally {
+      isSearchLoading.value = false;
     }
   }
 
-  Future<void> performSearch(String query) async {
-    if (query.trim().isEmpty) return;
-    String formattedQuery = query.split('-').first.trim();
-    isSearchLoading.value = true;
-
-    final dio.Response? response = await ApiServices().apiGetCall(
-        cityName: formattedQuery);
-
-    if (response != null && response.statusCode == 200) {
-      homeCity.value = response.data['name'] ?? formattedQuery;
-      homeTemp.value = "${response.data['main']['temp'].round()}°";
-
-      if (response.data['weather'] != null &&
-          (response.data['weather'] as List).isNotEmpty) {
-        String iconCode = response.data['weather'][0]['icon'] ?? '';
-        weatherIconPath.value = getWeatherIcon(iconCode);
-      }
-      searchHistory.remove(searchedCity.value);
-      searchHistory.insert(0, searchedCity.value);
-      if (searchHistory.length > 10) searchHistory.removeLast();
-
-      searchController.clear();
-
-      Get.back();
-    }
-  }
-
-
-  void removeFromHistory(String city) => searchHistory.remove(city);
 
 }

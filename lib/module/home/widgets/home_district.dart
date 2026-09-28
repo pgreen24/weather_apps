@@ -7,19 +7,19 @@ class HomeDistrict  extends GetView<HomeLogic> {
 
   @override
   Widget build(BuildContext context) {
-
+return Obx(() {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         spacing: WSizes.spaceBtwItems,
-        children: List.generate(controller.searchHistory.length, (index) {
-          final city = controller.searchHistory[index];
+        children: List.generate(controller.District .length, (index) {
+          final city = controller.District [index];
 
-          return InputChip(
+          return ActionChip(
             label: Text(
               city,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(color: Colors.green),
+              style: Theme.of(context).textTheme.titleSmall,
             ),
             backgroundColor: Get.isDarkMode ? Colors.grey.shade800 : const Color(0xFFF7F7F9),
             shape: RoundedRectangleBorder(
@@ -30,17 +30,17 @@ class HomeDistrict  extends GetView<HomeLogic> {
 
 
             onPressed: () {
-              controller.searchController.text = city;
-              controller.performSearch(city);
+              // controller.searchController.text = city;
+              controller.AllDistrictsFromApi(city);
             },
 
 
-           // deleteIcon: const Icon(Icons.close, size: 16, color: Colors.black45),
+            // deleteIcon: const Icon(Icons.close, size: 16, color: Colors.black45),
             //onDeleted: () => controller.removeFromHistory(city),
           );
         }),
       ),
     );
-
+});
   }
 }

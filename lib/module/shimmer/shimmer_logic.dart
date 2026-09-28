@@ -13,9 +13,5 @@ class ShimmerLogic extends GetxController {
     });
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-  }
 
 }

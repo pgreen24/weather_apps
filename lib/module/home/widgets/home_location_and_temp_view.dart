@@ -1,4 +1,3 @@
-import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:weather_apps/module/home/home_logic.dart';

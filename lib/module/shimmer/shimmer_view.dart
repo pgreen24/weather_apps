@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:shimmer/shimmer.dart';
 
 import '../../utils/apps_color.dart';
-import 'shimmer_logic.dart';
 
 class ShimmerPage extends StatelessWidget{
   const ShimmerPage({super.key});

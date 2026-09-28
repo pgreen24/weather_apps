@@ -1,4 +1,3 @@
-import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../../../utils/app_size.dart';
@@ -54,6 +53,7 @@ class HomeQuickStateView extends GetView<HomeLogic> {
                 context: context,
                 title: 'TIME',
                 value: weather.formattedLocalTime
+
             ),
 
             _buildStatColumn(
