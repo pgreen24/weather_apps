@@ -13,8 +13,8 @@ return Obx(() {
       padding: const EdgeInsets.symmetric(horizontal: 16.0),
       child: Row(
         spacing: WSizes.spaceBtwItems,
-        children: List.generate(controller.District .length, (index) {
-          final city = controller.District [index];
+        children: List.generate(controller.district .length, (index) {
+          final city = controller.district [index];
 
           return ActionChip(
             label: Text(
@@ -30,13 +30,8 @@ return Obx(() {
 
 
             onPressed: () {
-              // controller.searchController.text = city;
-              controller.AllDistrictsFromApi(city);
+              controller.allDistrictsFromApi(city);
             },
-
-
-            // deleteIcon: const Icon(Icons.close, size: 16, color: Colors.black45),
-            //onDeleted: () => controller.removeFromHistory(city),
           );
         }),
       ),

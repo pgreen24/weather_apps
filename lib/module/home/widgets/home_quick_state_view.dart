@@ -31,18 +31,6 @@ class HomeQuickStateView extends GetView<HomeLogic> {
             ),
           );
         }
-
-        if (controller.weatherList.isEmpty) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _buildStatColumn(context: context, title: 'TIME', value: '--:--'),
-              _buildStatColumn(context: context, title: 'WIND', value: '--'),
-              _buildStatColumn(context: context, title: '% RAIN', value: '--%'),
-              _buildStatColumn(context: context, title: 'HUMIDITY', value: '--'),
-            ],
-          );
-        }
         final weather = controller.weatherList.first;
 
         return Row(

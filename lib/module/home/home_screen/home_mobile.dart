@@ -8,6 +8,7 @@ import '../widgets/home_district.dart';
 import '../widgets/home_location_and_temp_view.dart';
 import '../widgets/home_main_image_view.dart';
 import '../widgets/home_quick_state_view.dart';
+import '../widgets/home_search.dart';
 import '../widgets/home_sunrise_and_temp_view.dart';
 class HomeMobile extends GetView<HomeLogic> {
   const HomeMobile({super.key});
@@ -26,14 +27,14 @@ class HomeMobile extends GetView<HomeLogic> {
               spacing: WSizes.defaultSpacing,
               children: <Widget>[
                 const HomeDistrict(),
-                const SizedBox(height: 10),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Column(
                       spacing: WSizes.defaultSpacing,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        HomeMainImageView(imagePath:controller.homeIcon.value, imageHeight: 200),
+                        const HomeSearch(),
+                        HomeMainImageView(imagePath:controller.icon.value, imageHeight: 200),
                         const HomeLocationAndTempView(),
                         const HomeQuickStateView(),
                         const HomeSunriseAndSunsetView(),

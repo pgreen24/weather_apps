@@ -33,7 +33,7 @@ class HomeTablet extends GetView<HomeLogic> {
                       spacing: WSizes.defaultSpacing,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        HomeMainImageView(imagePath:controller.homeIcon.value, imageHeight: 200),
+                        HomeMainImageView(imagePath:controller.icon.value, imageHeight: 200),
                         const HomeLocationAndTempView(),
                         const HomeQuickStateView(),
                         const HomeSunriseAndSunsetView(),

@@ -19,7 +19,7 @@ class HomeLocationAndTempView extends GetView<HomeLogic>{
             mainAxisAlignment: MainAxisAlignment.center,
             spacing: WSizes.iconSm -5,
             children: [
-              Text(controller.homeCity.value,
+              Text(controller.city.value,
               style:Theme.of(context).textTheme.headlineLarge!.copyWith(
                 fontSize: 42,
                 letterSpacing: 0.95,
@@ -33,7 +33,7 @@ class HomeLocationAndTempView extends GetView<HomeLogic>{
             ],
           ),
           Text(
-            controller.homeTemp.value,
+            controller.temp.value,
             style:Theme.of(context).textTheme.headlineLarge!.copyWith(
               fontSize: 60,
               letterSpacing: 0.95,
