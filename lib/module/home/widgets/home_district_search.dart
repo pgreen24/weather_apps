@@ -14,9 +14,6 @@ class HomeDistrictSearch extends GetView<HomeLogic> {
 
     final textColor = Get.isDarkMode ? AppsColor.white : const Color(0xFF1E2432);
 
-    final RxList<dynamic> filteredDistricts = <dynamic>[].obs;
-    final RxBool isSearching = false.obs;
-
     return Material(
       color: backgroundColor,
       child: SafeArea(
@@ -27,26 +24,26 @@ class HomeDistrictSearch extends GetView<HomeLogic> {
               Row(
                 children: [
                   IconButton(
-                    icon: Icon(Icons.arrow_back, color: textColor),
-                    onPressed: () => Get.back(),
+                      icon: Icon(Icons.arrow_back, color: textColor),
+                      onPressed: () {
+                        controller.searchDistricts.clear();
+                        controller.isSearching.value = false;
+                        Get.back();
+                      }
                   ),
                   const SizedBox(width: 8),
                   Expanded(
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      decoration: BoxDecoration(
-                        color: Get.isDarkMode ? Colors.grey[800] : Colors.grey[200],
-                        borderRadius: BorderRadius.circular(25.0),
-                      ),
                       child: TextField(
                         style: TextStyle(color: textColor),
                         onChanged: (value) {
                           if (value.isEmpty) {
-                            isSearching.value = false;
-                            filteredDistricts.clear();
+                            controller.isSearching.value = false;
+                            controller.searchDistricts.clear();
                           } else {
-                            isSearching.value = true;
-                            filteredDistricts.assignAll(
+                            controller.isSearching.value = true;
+                            controller.searchDistricts.assignAll(
                               controller.district.where((element) =>
                                   element.toString().toLowerCase().contains(value.toLowerCase())),
                             );
@@ -55,7 +52,6 @@ class HomeDistrictSearch extends GetView<HomeLogic> {
                         decoration: InputDecoration(
                           hintText: 'Enter District name',
                           hintStyle: TextStyle(color: textColor.withValues(alpha: 0.6)),
-                          border: InputBorder.none,
                           suffixIcon: Icon(Icons.search, color: textColor),
                         ),
                       ),
@@ -64,34 +60,64 @@ class HomeDistrictSearch extends GetView<HomeLogic> {
                 ],
               ),
               const SizedBox(height: 16),
+
+
               Expanded(
                 child: Obx(() {
 
-                  if (!isSearching.value) {
-                    return const SizedBox.shrink();
-                  }
+                  if (!controller.isSearching.value) {
+                    if (controller.searchHistory.isEmpty) {
+                      return Center(
+                        child: Text(
+                          "No search history",
+                          style: TextStyle(color: textColor.withValues(alpha: 0.5)),
+                        ),
+                      );
+                    }
 
-                  if (filteredDistricts.isEmpty) {
-                    return Center(
-                      child: Text(
-                        'No district found',
-                        style: TextStyle(color: textColor, fontSize: 16),
-                      ),
+                    return ListView.builder(
+                      itemCount: controller.searchHistory.length,
+                      itemBuilder: (context, index) {
+                        final historyCity = controller.searchHistory[index];
+                        return ListTile(
+                          leading: Icon(Icons.history, color: textColor.withValues(alpha: 0.6)),
+                          title: Text(
+                            historyCity,
+                            style: TextStyle(color: textColor, fontSize: 16),
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(Icons.clear, size: 20, color: Colors.redAccent),
+                            onPressed: () {
+                              controller.removeFromHistory(historyCity);
+                            },
+                          ),
+                          onTap: () async {
+                            controller.cityName.value = historyCity;
+                            controller.selectedDistrict.value = historyCity;
+                            await controller.weatherData();
+                            Get.back();
+                          },
+                        );
+                      },
                     );
                   }
 
                   return ListView.builder(
-                    itemCount: filteredDistricts.length,
+                    itemCount: controller.searchDistricts.length,
                     itemBuilder: (context, index) {
-                      final districtName = filteredDistricts[index].toString();
+                      final districtName = controller.searchDistricts[index].toString();
                       return ListTile(
                         title: Text(
                           districtName,
                           style: TextStyle(color: textColor, fontSize: 16),
                         ),
                         onTap: () async {
+                          controller.addToHistory(districtName);
                           controller.cityName.value = districtName;
+                          controller.selectedDistrict.value = districtName;
                           await controller.weatherData();
+                          controller.searchDistricts.clear();
+                          controller.isSearching.value = false;
                           Get.back();
                         },
                       );
@@ -106,5 +132,3 @@ class HomeDistrictSearch extends GetView<HomeLogic> {
     );
   }
 }
-
-

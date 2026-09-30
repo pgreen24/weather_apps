@@ -32,14 +32,54 @@ class HomeLocationAndTempView extends GetView<HomeLogic>{
               )
             ],
           ),
-          Text(
-            controller.temp.value,
-            style:Theme.of(context).textTheme.headlineLarge!.copyWith(
-              fontSize: 60,
-              letterSpacing: 0.95,
-              fontWeight: FontWeight.w900,
-            )
-          )
+          Obx(() {
+            final textStyle = Theme.of(context).textTheme.headlineLarge!;
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                Text(
+                  controller.temp.value,
+                  style: textStyle.copyWith(fontSize: 60, fontWeight: FontWeight.w900, letterSpacing: 0.95),
+                ),
+                Baseline(
+                  baseline: 32,
+                  baselineType: TextBaseline.alphabetic,
+                  child: Text(
+                    '°C',
+                    style: textStyle.copyWith(fontSize: 14, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            );
+          }),
+
+          Obx(() => Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+
+              Text(
+                controller.weatherMain.value,
+                style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 4),
+
+
+              Text(
+                "${controller.tempmin.value}°C ~  ${controller.tempmax.value}°C  Feels like: ${controller.feelslike.value}°C",
+                style: Theme.of(context).textTheme.bodyMedium!.copyWith(
+                  fontSize: 14,
+                  color: Colors.grey[600],
+                ),
+              ),
+            ],
+          ))
+
+
         ]
 
       );

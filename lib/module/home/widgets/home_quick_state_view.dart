@@ -47,7 +47,7 @@ class HomeQuickStateView extends GetView<HomeLogic> {
             _buildStatColumn(
                 context: context,
                 title: 'WIND',
-                value: '${weather.windSpeed.toStringAsFixed(1)} m/s'
+                value: '${weather.windSpeed.toStringAsFixed(1)} ms'
             ),
 
             _buildStatColumn(

@@ -25,7 +25,7 @@ class HomeTablet extends GetView<HomeLogic> {
             child: Column(
               spacing: WSizes.defaultSpacing,
               children: <Widget>[
-                const HomeDistrict(),
+                HomeDistrict(),
                 const SizedBox(height: 10),
                 Expanded(
                   child: SingleChildScrollView(

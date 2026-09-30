@@ -10,11 +10,20 @@ class HomeLogic extends GetxController {
   RxList weatherList = <WeatherDataModel>[].obs;
   RxList district = <String>[].obs;
   RxString city = ''.obs;
+  RxString description=''.obs;
   RxString  temp = ''.obs;
   RxString icon = ''.obs;
+  RxString weatherMain = ''.obs;
+  RxString feelslike =''.obs;
+  RxString tempmin =''.obs;
+  RxString tempmax =''.obs;
   RxBool isDarkMode = false.obs;
   List<Map<String, dynamic>> allApiDistricts = [];
-  RxString cityName = ''.obs;
+  RxString cityName = 'chandpur'.obs;
+  final RxList<dynamic> searchDistricts = <dynamic>[].obs;
+  final RxBool isSearching = false.obs;
+  var selectedDistrict = ''.obs;
+  RxList<String> searchHistory = <String>[].obs;
 
   @override
   Future <void> onInit()  async{
@@ -22,15 +31,26 @@ class HomeLogic extends GetxController {
     isDarkMode.value = Get.isDarkMode;
     await allDistrictsFromApi();
     if (district.isNotEmpty) {
-      cityName.value = district.first;
+      // cityName.value = district.first;
+      final defaultCity = district.firstWhere(
+              (c) => c.toString().toLowerCase() == 'chandpur',
+          orElse: () => district.first.toString()
+      );
+      cityName.value = defaultCity;
+      selectedDistrict.value = defaultCity;
     }
     await weatherData();
   }
 
   void lima (dynamic data, String cityName) {
-    city.value = data['name'] ?? '';
-    temp.value = "${data['main']['temp'].round()}°";
+    city.value = data['name'] ?? 'Chandpur';
+    temp.value = "${data['main']['temp'].round()}";
     icon.value = getWeatherIcon(data['weather']?[0]?['icon'] ?? '');
+    weatherMain.value = (data['weather']?[0]?['main'] ?? '').toString().capitalizeFirst ?? '';
+    feelslike.value = "${data['main']['feels_like'].round()}";
+    tempmin.value = "${data['main']['temp_min'].round()}";
+    tempmax.value = "${data['main']['temp_max'].round()}";
+
   }
 
   Future<void> weatherData() async {
@@ -51,7 +71,9 @@ class HomeLogic extends GetxController {
   }
 
   Future<void> allDistrictsFromApi([String? name]) async {
+
     try {
+
 
       if (allApiDistricts.isEmpty) {
         final res = await ApiServices().getCity();
@@ -69,7 +91,10 @@ class HomeLogic extends GetxController {
         }
       }
 
-      String targetCity = name ?? (district .isNotEmpty ? district .first : '');
+      String targetCity = name ?? cityName.value;
+      if (name != null) {
+        selectedDistrict.value = name;
+      }
       if (targetCity.toLowerCase() == 'chattogram') {
         targetCity = 'Chittagong';
       } else if (targetCity.toLowerCase() == 'coxsbazar') {
@@ -81,9 +106,25 @@ class HomeLogic extends GetxController {
       final res = await ApiServices().weatherData(cityName: targetCity);
       if (res?.statusCode == 200) {
         lima(res!.data, targetCity);
+        weatherList.assignAll(WeatherDataModel.fromJsonList([res.data]));
       }
     } catch (e) {
       debugPrint("Error:$e");
     }
+  }
+  void removeFromHistory(String city) {
+    searchHistory.remove(city);
+  }
+
+  void addToHistory(String city) {
+    if (!searchHistory.contains(city)) {
+      searchHistory.insert(0, city);
+    }
+  }
+  @override
+  void onClose() {
+    searchDistricts.clear();
+    isSearching.value = false;
+    super.onClose();
   }
 }
