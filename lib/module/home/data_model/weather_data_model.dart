@@ -1,10 +1,11 @@
 import 'package:intl/intl.dart';
-class  WeatherDataModel {
+
+class WeatherDataModel {
   WeatherDataModel({
     this.id = 0,
     this.main = '',
     this.icon = '',
-    this.description='',
+    this.description = '',
     this.temp = 0.0,
     this.humidity = 0,
     this.windSpeed = 0.0,
@@ -12,13 +13,13 @@ class  WeatherDataModel {
     this.sunrise = 0,
     this.sunset = 0,
     this.timezone = 0,
-    this.feelslike=0,
+    this.feelslike = 0,
     this.dt = 0,
     this.clouds = 0,
-    this.tempmin=0,
-    this.tempmax=0,
+    this.tempmin = 0,
+    this.tempmax = 0,
+  });
 
-});
   final int id;
   final String main;
   final String icon;
@@ -37,7 +38,16 @@ class  WeatherDataModel {
   final double tempmax;
 
   factory WeatherDataModel.fromJson(Map<String, dynamic> json) {
-    final weatherList = json['weather'] as List?;
+
+    final cityMap = json['city'] as Map<String, dynamic>?;
+
+
+    final list = json['list'] as List?;
+    final firstBlock = (list != null && list.isNotEmpty)
+        ? list[0] as Map<String, dynamic>
+        : <String, dynamic>{};
+
+    final weatherList = firstBlock['weather'] as List?;
     final weatherMap = (weatherList != null && weatherList.isNotEmpty)
         ? weatherList[0] as Map<String, dynamic>
         : null;
@@ -47,19 +57,20 @@ class  WeatherDataModel {
       main: weatherMap?['main'] ?? '',
       icon: weatherMap?['icon'] ?? '',
       description: weatherMap?['description'] ?? '',
-      temp: (json['main']?['temp'] ?? 0.0).toDouble(),
-      feelslike:(json['main']?['feels_Like'] ?? 0.0).toDouble(),
-      tempmin:(json['main']?['temp_min'] ?? 0.0).toDouble(),
-      tempmax:(json['main']?['temp_max'] ?? 0.0).toDouble(),
-      humidity: json['main']?['humidity'] ?? 0,
-      windSpeed: (json['wind']?['speed'] ?? 0.0).toDouble(),
-      cityName: json['name'] ?? '',
-      timezone: json['timezone'] ?? 0,
-      dt: json['dt'] ?? 0,
-      clouds: json['clouds']?['all'] ?? 0,
-      sunrise: json['sys']?['sunrise'] ?? 0,
-      sunset: json['sys']?['sunset'] ?? 0,
 
+      // 'list[0]' এর ভেতরের ডাটা ম্যাপিং
+      temp: (firstBlock['main']?['temp'] ?? 0.0).toDouble(),
+      feelslike: (firstBlock['main']?['feels_like'] ?? 0.0).toDouble(), // 💡 'feels_Like' কে 'feels_like' ফিক্স করা হয়েছে
+      tempmin: (firstBlock['main']?['temp_min'] ?? 0.0).toDouble(),
+      tempmax: (firstBlock['main']?['temp_max'] ?? 0.0).toDouble(),
+      humidity: firstBlock['main']?['humidity'] ?? 0,
+      windSpeed: (firstBlock['wind']?['speed'] ?? 0.0).toDouble(),
+      dt: firstBlock['dt'] ?? 0,
+      clouds: firstBlock['clouds']?['all'] ?? 0,
+      cityName: cityMap?['name'] ?? '',
+      timezone: cityMap?['timezone'] ?? 0,
+      sunrise: cityMap?['sunrise'] ?? 0,
+      sunset: cityMap?['sunset'] ?? 0,
     );
   }
 
@@ -67,7 +78,6 @@ class  WeatherDataModel {
   String _fmt(DateTime dt) => DateFormat('hh:mm a').format(dt);
   String _dur(Duration d) => '${d.inHours}H ${d.inMinutes.remainder(60)}M';
   DateTime get _now => DateTime.now().toUtc().add(Duration(seconds: timezone));
-
 
   String get formattedLocalTime => _fmt(_now);
   String get formattedSunrise => sunrise == 0 ? '--:--' : _fmt(_loc(sunrise));
@@ -84,5 +94,4 @@ class  WeatherDataModel {
   static List<WeatherDataModel> fromJsonList(dynamic json) =>
       json is Map<String, dynamic> ? [WeatherDataModel.fromJson(json)] :
       json is List ? json.map((e) => WeatherDataModel.fromJson(e as Map<String, dynamic>)).toList() : [];
-
 }

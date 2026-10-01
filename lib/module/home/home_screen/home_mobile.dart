@@ -4,7 +4,9 @@ import 'package:weather_apps/module/home/home_logic.dart';
 import '../../../utils/app_size.dart';
 import '../../../utils/style/style_padding.dart';
 import '../../shimmer/shimmer_view.dart';
+import '../widgets/home_daily_forecast.dart';
 import '../widgets/home_district.dart';
+import '../widgets/home_hourly_forecast.dart';
 import '../widgets/home_location_and_temp_view.dart';
 import '../widgets/home_main_image_view.dart';
 import '../widgets/home_quick_state_view.dart';
@@ -36,6 +38,8 @@ class HomeMobile extends GetView<HomeLogic> {
                         const HomeSearch(),
                         HomeMainImageView(imagePath:controller.icon.value, imageHeight: 200),
                         const HomeLocationAndTempView(),
+                        const HomeHourlyForecast(),
+                        const HomeDailyForecast(),
                         const HomeQuickStateView(),
                         const HomeSunriseAndSunsetView(),
                       ],

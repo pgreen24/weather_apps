@@ -43,6 +43,7 @@ dependencies:
   cupertino_ui: any
   dio: ^5.11.0
   smooth_page_indicator: ^1.1.5
+  fl_chart: ^1.2.0
 
 
 dev_dependencies:
