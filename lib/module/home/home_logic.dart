@@ -17,6 +17,7 @@ class HomeLogic extends GetxController {
   RxString feelslike = ''.obs;
   RxString tempmin = ''.obs;
   RxString tempmax = ''.obs;
+  RxString pressure = ''.obs;
   RxBool isDarkMode = false.obs;
   List<Map<String, dynamic>> allApiDistricts = [];
   RxString cityName = 'chandpur'.obs;
@@ -25,6 +26,7 @@ class HomeLogic extends GetxController {
   var selectedDistrict = ''.obs;
   RxList<String> searchHistory = <String>[].obs;
   RxList hourlyForecastList = [].obs;
+  RxString selectedForecastDate = ''.obs;
 
   @override
   Future<void> onInit() async {
@@ -54,6 +56,7 @@ class HomeLogic extends GetxController {
       feelslike.value = "${currentBlock['main']['feels_like'].round()}";
       tempmin.value = "${currentBlock['main']['temp_min'].round()}";
       tempmax.value = "${currentBlock['main']['temp_max'].round()}";
+      pressure.value = "${currentBlock['main']['pressure']}";
     }
   }
 
@@ -63,9 +66,17 @@ class HomeLogic extends GetxController {
     if (res?.statusCode == 200) {
       lima(res.data, cityName.value);
       hourlyForecastList.assignAll(res.data['list'] ?? []);
+      if (hourlyForecastList.isNotEmpty) {
+        final String dtTxt = hourlyForecastList.first['dt_txt'] ?? '';
+        if (dtTxt.length >= 10) {
+          selectedForecastDate.value = dtTxt.substring(0, 10);
+        }
+      }
       hourlyForecastList.refresh();
 
-      weatherList.assignAll(WeatherDataModel.fromJsonList([res.data]));
+      if (res.data is Map<String, dynamic>) {
+        weatherList.assignAll(WeatherDataModel.fromJsonList(res.data));
+      }
     }
     isLoading.value = false;
   }
@@ -116,8 +127,16 @@ class HomeLogic extends GetxController {
       if (res?.statusCode == 200) {
         lima(res.data, apiCityName);
         hourlyForecastList.assignAll(res.data['list'] ?? []);
+        if (hourlyForecastList.isNotEmpty) {
+          final String dtTxt = hourlyForecastList.first['dt_txt'] ?? '';
+          if (dtTxt.length >= 10) {
+            selectedForecastDate.value = dtTxt.substring(0, 10);
+          }
+        }
         hourlyForecastList.refresh();
-        weatherList.assignAll(WeatherDataModel.fromJsonList([res.data]));
+        if (res.data is Map<String, dynamic>) {
+          weatherList.assignAll(WeatherDataModel.fromJsonList(res.data));
+        }
       }
     } catch (e) {
       debugPrint("Error:$e");

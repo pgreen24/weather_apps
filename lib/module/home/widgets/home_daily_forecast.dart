@@ -1,187 +1,211 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import '../home_logic.dart';
+import 'package:weather_apps/module/home/home_logic.dart';
 
-class HomeDailyForecast extends GetView<HomeLogic> {
+const _accent = Colors.blueAccent;
+
+class HomeDailyForecast extends StatefulWidget {
   const HomeDailyForecast({super.key});
 
   @override
+  State<HomeDailyForecast> createState() => _HomeDailyForecastState();
+}
+
+class _HomeDailyForecastState extends State<HomeDailyForecast> {
+  final controller = Get.find<HomeLogic>();
+  bool _expanded = false;
+
+  String _dayTitle(String date) {
+    try {
+      final parsed = DateTime.parse(date);
+      final now = DateTime.now();
+      final diff = DateTime(parsed.year, parsed.month, parsed.day)
+          .difference(DateTime(now.year, now.month, now.day))
+          .inDays;
+      if (diff == 0) return 'Today';
+      if (diff == 1) return 'Tomorrow';
+      return DateFormat('EEEE').format(parsed);
+    } catch (_) {
+      return date;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final RxBool isExpanded = false.obs;
-
     return Obx(() {
-      if (controller.hourlyForecastList.isEmpty) {
-        return const SizedBox.shrink();
-      }
+      if (controller.hourlyForecastList.isEmpty) return const SizedBox.shrink();
+      final selected = controller.selectedForecastDate.value;
 
-      final Map<String, List<dynamic>> groupedByDay = {};
-      for (var block in controller.hourlyForecastList) {
-        final String dtTxt = block['dt_txt'] ?? '';
-        if (dtTxt.length >= 10) {
-          final String dateKey = dtTxt.substring(0, 10);
-          if (!groupedByDay.containsKey(dateKey)) {
-            groupedByDay[dateKey] = [];
-          }
-          groupedByDay[dateKey]!.add(block);
+      final days = <String, List<Map>>{};
+      for (final block in controller.hourlyForecastList) {
+        final text = '${block['dt_txt'] ?? ''}';
+        if (text.length >= 10) {
+          (days[text.substring(0, 10)] ??= []).add(block as Map);
         }
       }
-
-      final List<String> sortedDates = groupedByDay.keys.toList()..sort();
-      final int itemCount = isExpanded.value ? 7 : 2;
+      final dates = days.keys.toList()..sort();
+      final shown = _expanded ? dates : dates.take(2).toList();
 
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12.0),
+            padding: const EdgeInsets.symmetric(vertical: 12),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  "Next 7 Days Forecast",
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, letterSpacing: 0.5),
+                  'Daily Forecast',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 GestureDetector(
-                  onTap: () {
-                    isExpanded.value = !isExpanded.value;
-                  },
+                  onTap: () => setState(() => _expanded = !_expanded),
                   child: Text(
-                    isExpanded.value ? "Show Less" : "See All",
+                    _expanded ? 'Show Less' : 'See All',
                     style: TextStyle(
                       fontSize: 14,
-                      color: Colors.blueAccent.withOpacity(0.8),
                       fontWeight: FontWeight.w600,
+                      color: _accent.withValues(alpha: 0.8),
                     ),
                   ),
                 ),
               ],
             ),
           ),
-
           AnimatedSize(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOut,
             child: Container(
               padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
               decoration: BoxDecoration(
-                color: Colors.blueAccent.withOpacity(0.05),
+                color: _accent.withValues(alpha: 0.05),
                 borderRadius: BorderRadius.circular(20),
-                border: Border.all(color: Colors.blueAccent.withOpacity(0.1), width: 1),
+                border: Border.all(color: _accent.withValues(alpha: 0.1)),
               ),
-              child: ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: itemCount,
-                separatorBuilder: (context, index) => Divider(
-                  color: Colors.blueAccent.withOpacity(0.1),
-                  height: 20,
-                  thickness: 1,
-                ),
-                itemBuilder: (context, index) {
-                  final DateTime now = DateTime.now();
-                  final DateTime targetDate = now.add(Duration(days: index));
-                  final String dateString = DateFormat('yyyy-MM-dd').format(targetDate);
-
-                  String dayTitle = '';
-                  if (index == 0) {
-                    dayTitle = "Today";
-                  } else if (index == 1) {
-                    dayTitle = "Tomorrow";
-                  } else {
-                    dayTitle = DateFormat('EEEE').format(targetDate);
-                  }
-
-                  List<dynamic>? dayBlocks;
-                  if (groupedByDay.containsKey(dateString)) {
-                    dayBlocks = groupedByDay[dateString];
-                  } else {
-                    dayBlocks = groupedByDay.isNotEmpty ? groupedByDay[sortedDates.last] : null;
-                  }
-
-                  double maxTemp = -999.0;
-                  double minTemp = 999.0;
-
-                  if (dayBlocks != null) {
-                    for (var block in dayBlocks) {
-                      final double tempMax = (block['main']?['temp_max'] as num?)?.toDouble() ?? 0.0;
-                      final double tempMin = (block['main']?['temp_min'] as num?)?.toDouble() ?? 0.0;
-                      if (tempMax > maxTemp) maxTemp = tempMax;
-                      if (tempMin < minTemp) minTemp = tempMin;
-                    }
-                  }
-
-                  final firstBlock = dayBlocks?.first;
-                  final String status = firstBlock != null ? (firstBlock['weather']?[0]?['main'] ?? 'Clear').toString() : 'Clear';
-                  final String iconCode = firstBlock != null ? (firstBlock['weather']?[0]?['icon'] ?? '01d').toString() : '01d';
-                  final String localIconPath = controller.getWeatherIcon(iconCode);
-
-
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SizedBox(
-                          width: 85,
-                          child: Text(
-                            dayTitle,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
-                          ),
-                        ),
-
-                        Expanded(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              const SizedBox(width: 10),
-                              Image.asset(
-                                localIconPath,
-                                height: 25,
-                                width: 25,
-                                errorBuilder: (context, error, stackTrace) =>
-                                const Icon(Icons.wb_sunny_rounded, color: Colors.orangeAccent, size: 22),
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  status,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(fontSize: 13, color: Colors.grey, fontWeight: FontWeight.w500),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        SizedBox(
-                          width: 65,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              Text(
-                                "${maxTemp == -999.0 ? '--' : maxTemp.round()}°",
-                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(
-                                "${minTemp == 999.0 ? '--' : minTemp.round()}°",
-                                style: const TextStyle(fontSize: 14, color: Colors.grey),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+              child: Column(
+                children: [
+                  for (var i = 0; i < shown.length; i++) ...[
+                    if (i > 0)
+                      Divider(color: _accent.withValues(alpha: 0.1), height: 20),
+                    _DayRow(
+                      title: _dayTitle(shown[i]),
+                      blocks: days[shown[i]]!,
+                      isSelected: shown[i] == selected,
+                      onTap: () => controller.selectedForecastDate.value = shown[i],
                     ),
-                  );
-                },
+                  ],
+                ],
               ),
             ),
           ),
         ],
       );
     });
+  }
+}
+
+class _DayRow extends StatelessWidget {
+  const _DayRow({
+    required this.title,
+    required this.blocks,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  final String title;
+  final List<Map> blocks;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  double _extreme(String key, double Function(double, double) pick) => blocks
+      .map((b) => (b['main']?[key] as num?)?.toDouble() ?? 0.0)
+      .reduce(pick);
+
+  @override
+  Widget build(BuildContext context) {
+    final base = Theme.of(context).colorScheme.onSurface;
+    final muted = base.withValues(alpha: 0.6);
+
+    final list = blocks.first['weather'] as List?;
+    final weather = list != null && list.isNotEmpty ? list[0] : null;
+    final status = '${weather?['main'] ?? 'Clear'}';
+    final iconPath = Get.find<HomeLogic>().getWeatherIcon('${weather?['icon'] ?? '01d'}');
+
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: isSelected ? _accent.withValues(alpha: 0.12) : Colors.transparent,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 85,
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w600,
+                  color: isSelected ? _accent : base,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            Image.asset(
+              iconPath,
+              height: 25,
+              width: 25,
+              errorBuilder: (_, __, ___) =>
+              const Icon(Icons.wb_sunny_rounded, color: Colors.orangeAccent, size: 22),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                status,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  fontSize: 13,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                  color: isSelected ? _accent.withValues(alpha: 0.8) : muted,
+                ),
+              ),
+            ),
+            SizedBox(
+              width: 65,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text(
+                    '${_extreme('temp_max', math.max).round()}°',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                      color: isSelected ? _accent : base,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    '${_extreme('temp_min', math.min).round()}°',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: isSelected ? _accent.withValues(alpha: 0.6) : muted,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

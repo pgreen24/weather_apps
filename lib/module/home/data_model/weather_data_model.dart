@@ -18,6 +18,7 @@ class WeatherDataModel {
     this.clouds = 0,
     this.tempmin = 0,
     this.tempmax = 0,
+    this.pressure =0,
   });
 
   final int id;
@@ -36,6 +37,7 @@ class WeatherDataModel {
   final double feelslike;
   final double tempmin;
   final double tempmax;
+  final int pressure;
 
   factory WeatherDataModel.fromJson(Map<String, dynamic> json) {
 
@@ -58,19 +60,21 @@ class WeatherDataModel {
       icon: weatherMap?['icon'] ?? '',
       description: weatherMap?['description'] ?? '',
 
-      // 'list[0]' এর ভেতরের ডাটা ম্যাপিং
+
       temp: (firstBlock['main']?['temp'] ?? 0.0).toDouble(),
-      feelslike: (firstBlock['main']?['feels_like'] ?? 0.0).toDouble(), // 💡 'feels_Like' কে 'feels_like' ফিক্স করা হয়েছে
+      feelslike: (firstBlock['main']?['feels_like'] ?? 0.0).toDouble(),
       tempmin: (firstBlock['main']?['temp_min'] ?? 0.0).toDouble(),
       tempmax: (firstBlock['main']?['temp_max'] ?? 0.0).toDouble(),
       humidity: firstBlock['main']?['humidity'] ?? 0,
       windSpeed: (firstBlock['wind']?['speed'] ?? 0.0).toDouble(),
+      pressure: firstBlock['main']?['pressure'] ?? 0,
       dt: firstBlock['dt'] ?? 0,
       clouds: firstBlock['clouds']?['all'] ?? 0,
       cityName: cityMap?['name'] ?? '',
       timezone: cityMap?['timezone'] ?? 0,
       sunrise: cityMap?['sunrise'] ?? 0,
       sunset: cityMap?['sunset'] ?? 0,
+
     );
   }
 
