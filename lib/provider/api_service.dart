@@ -45,4 +45,19 @@ class ApiServices {
       debugPrint("Location Forecast Exception: $e");
       return null;
     }  }
+  Future<dynamic> weatherByCoords({required double lat, required double lon}) async {
+    try {
+      return await _dio.get(
+        'https://api.openweathermap.org/data/2.5/forecast',
+        queryParameters: {
+          'lat': lat,
+          'lon': lon,
+          'appid': apiKey,
+          'units': 'metric',
+        },
+      );
+    } catch (e) {
+      return null;
+    }
+  }
 }

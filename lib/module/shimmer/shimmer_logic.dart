@@ -8,7 +8,7 @@ class ShimmerLogic extends GetxController {
   void onInit() {
     super.onInit();
     isDarkMode.value = Get.isDarkMode;
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 2), () {
       isLoading.value = false;
     });
   }

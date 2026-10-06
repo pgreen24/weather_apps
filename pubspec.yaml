@@ -45,8 +45,6 @@ dependencies:
   smooth_page_indicator: ^1.1.5
   fl_chart: ^1.2.0
   geolocator: ^14.1.1
-  google_maps_flutter: ^2.18.2
-
 
 dev_dependencies:
   flutter_test:
